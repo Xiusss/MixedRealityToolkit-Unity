@@ -47,7 +47,7 @@ public class GrabbableObject : MonoBehaviour, INodeObject
         get => farInteraction;
         set => farInteraction = value;
     }
-    
+
     public bool PhysicsEnabled
     {
         get => physicsEnabled;
@@ -60,7 +60,7 @@ public class GrabbableObject : MonoBehaviour, INodeObject
                 if(rigidbody == null)
                     rigidbody = gameObject.AddComponent<Rigidbody>();
             }
-                
+
             rigidbody.isKinematic = !physicsEnabled;
         }
     }
@@ -70,8 +70,10 @@ public class GrabbableObject : MonoBehaviour, INodeObject
     {
         objectManipulator = gameObject.AddComponent<ObjectManipulator>();
         Assert.IsNotNull(objectManipulator);
+
         xrGrabInteractable = gameObject.AddComponent<XRGrabInteractable>();
         Assert.IsNotNull(xrGrabInteractable);
+
         minMaxScaleConstraint = gameObject.AddComponent<MinMaxScaleConstraint>();
         Assert.IsNotNull(minMaxScaleConstraint);
 
@@ -80,8 +82,8 @@ public class GrabbableObject : MonoBehaviour, INodeObject
 
        TwoHandedScaling(twoHandedScaling);
         UpdateFarInteraction(farInteraction);
-        xrGrabInteractable.selectEntered.AddListener(OnManipulationStart);
-        xrGrabInteractable.selectExited.AddListener(OnManipulationEnd);
+        objectManipulator.selectEntered.AddListener(OnManipulationStart);
+        objectManipulator.selectExited.AddListener(OnManipulationEnd);
 
 
         //tooltip = gameObject.GetComponentInChildren<ToolTip>(true);
@@ -107,12 +109,7 @@ public class GrabbableObject : MonoBehaviour, INodeObject
     }
 
      public void UpdateFarInteraction(bool enable)
-    {
-        if (xrGrabInteractable == null)
-            xrGrabInteractable = GetComponent<XRGrabInteractable>();
-
-        if (xrGrabInteractable != null)
-        {
+     {
             if (enable)
             {
                 xrGrabInteractable.interactionLayers = InteractionLayerMask.NameToLayer("FarInteractable");
@@ -121,9 +118,7 @@ public class GrabbableObject : MonoBehaviour, INodeObject
             {
                 xrGrabInteractable.interactionLayers = 0;
             }
-
-        }
-    }
+     }
     protected virtual void Start()
     {
         IsReactive = true;
@@ -211,7 +206,7 @@ public class GrabbableObject : MonoBehaviour, INodeObject
             minMaxScaleConstraint.enabled = isReactive;
         }
     }
-    
+
     public virtual void EnableTooltip(bool enable)
     {
         //if (tooltip != null)
@@ -219,7 +214,7 @@ public class GrabbableObject : MonoBehaviour, INodeObject
         //else
             Debug.LogWarning("no tooltip in draggable " + name);
     }
-    
+
     public void EnableGraphicalHelpers(bool enable)
     {
         //Nothing to do for this Grabbable
