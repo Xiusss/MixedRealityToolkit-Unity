@@ -171,15 +171,6 @@ public class GrabbableObject : MonoBehaviour, INodeObject
         objectManipulator.RotateLerpTime = lerpTime;
         objectManipulator.ScaleLerpTime = lerpTime;
     }
-
-    private void OnSourceLost(HoverExitEventArgs args)
-    {
-        if (!isReactive || !isGrabbed)
-            return;
-
-        isGrabbed = false;
-        HandleOnDropped();
-    }
     //TOOLTIP DA IMPORTARE DA MRTK2
 
     //public void SetTooltip(ObjectTextId objectTextId)
