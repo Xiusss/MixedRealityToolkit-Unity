@@ -1,51 +1,55 @@
+using MixedReality.Toolkit.SpatialManipulation;
+using System;
 using UnityEngine;
+using UnityEngine.Assertions;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 
 public class ObjectSqueezeScaler : MonoBehaviour
 {
-    public UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable grabInteractable; // The object that can be grabbed
-    public UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor handInteractor; // The hand interacting with the object
+    public MixedReality.Toolkit.Input.GrabInteractor grabInteractor; // The hand interacting with the object
 
+
+    private ObjectManipulator objectManipulator;
     private Vector3 initialHandPosition; // The hand position when the interaction starts
     private Vector3 initialScale; // The initial scale of the object
 
+    private bool neutral = true;
     void Start()
     {
-        if (grabInteractable == null)
+        if (objectManipulator == null)
         {
-            grabInteractable = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
+            objectManipulator = GetComponent<ObjectManipulator>();
+            Assert.IsNotNull(objectManipulator);
         }
+        float lerpSpeed = 0.1f;
+
+        objectManipulator.selectEntered.AddListener(Squeeze);
+        objectManipulator.selectExited.AddListener(Unsqueeze);
 
         // Save the initial scale of the object
         initialScale = transform.localScale;
     }
 
-    void Update()
+    public void Squeeze(SelectEnterEventArgs args=null)
     {
-       
-        // Track the current position of the hand
-        Vector3 currentHandPosition = handInteractor.transform.position;
-
-        // Calculate the distance moved by the hand along the relevant axis (e.g., Z-axis for squeezing)
-        float distanceMoved = currentHandPosition.z - initialHandPosition.z;
-
-        // Scale the object based on how much the hand has moved
-        if (Mathf.Abs(distanceMoved) > 0.1f) // Threshold to prevent small jitter
-        {
-            float scaleFactor = 1 + distanceMoved * 0.1f; // Adjust the factor for desired scaling speed
-
-            // Apply scaling to the object along the relevant axis (e.g., Z-axis)
-            transform.localScale = initialScale * scaleFactor;
-        }
-
-        // Update initial hand position to continue tracking
-        initialHandPosition = currentHandPosition;
-        
+        neutral = true;
+        this.transform.localScale = initialScale*0.2f;
     }
 
-    // When grabbing the object, set the initial hand position
-    public void OnGrab()
+    public void Unsqueeze(SelectExitEventArgs args=null)
     {
-        initialHandPosition = handInteractor.transform.position;
+        neutral = false;
+        float lerpSpeed = 0.1f; // Adjust this value for the speed of interpolation
+        this.transform.localScale = Vector3.Lerp(this.transform.localScale, initialScale, lerpSpeed);
+    }
+
+    private void Update()
+    {
+        if (!neutral && this.transform.localScale != initialScale)
+        {
+            Unsqueeze();
+        }
     }
 }
