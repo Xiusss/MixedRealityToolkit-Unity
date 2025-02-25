@@ -39,7 +39,7 @@ public class GrabbableObject : MonoBehaviour, INodeObject
     protected Rigidbody rigidbody;
 
     protected Dictionary<ClipId, AudioClip> clips = new Dictionary<ClipId, AudioClip>();
-    //protected ToolTip tooltip;
+    protected ToolTip tooltip;
     protected bool isReactive = false;
 
     public bool FarInteraction
@@ -86,11 +86,11 @@ public class GrabbableObject : MonoBehaviour, INodeObject
         objectManipulator.selectExited.AddListener(OnManipulationEnd);
 
 
-        //tooltip = gameObject.GetComponentInChildren<ToolTip>(true);
-        //if (tooltip == null)
-        //    Debug.LogWarning("Found draggable " + name + " without a tooltip");
+        tooltip = gameObject.GetComponentInChildren<ToolTip>(true);
+        if (tooltip == null)
+            Debug.LogWarning("Found draggable " + name + " without a tooltip");
 
-        //EnableTooltip(false);
+        EnableTooltip(true);
         SetLerpedTransformations(false);
 
     }
@@ -128,12 +128,15 @@ public class GrabbableObject : MonoBehaviour, INodeObject
     {
         OnGrabbed?.Invoke(this, EventArgs.Empty);
         isGrabbed = true;
+        EnableTooltip(false);
     }
 
     protected virtual void HandleOnDropped()
     {
         OnDropped?.Invoke(this, EventArgs.Empty);
         isGrabbed = false;
+        EnableTooltip(true);
+
     }
 
     protected void OnManipulationStart(SelectEnterEventArgs eventData)
@@ -171,15 +174,14 @@ public class GrabbableObject : MonoBehaviour, INodeObject
         objectManipulator.RotateLerpTime = lerpTime;
         objectManipulator.ScaleLerpTime = lerpTime;
     }
-    //TOOLTIP DA IMPORTARE DA MRTK2
 
-    //public void SetTooltip(ObjectTextId objectTextId)
-    //{
-    //    if(tooltip == null) return;
+    public void SetTooltip(ObjectTextId objectTextId)
+    {
+        if(tooltip == null) return;
 
-    //    tooltip.ToolTipText =
-    //        LocaleManager.Instance.GetObjectText(GetType().ToString(), objectTextId);
-    //}
+        tooltip.ToolTipText =
+            LocaleManager.Instance.GetObjectText(GetType().ToString(), objectTextId);
+    }
 
     public bool IsReactive
     {
@@ -200,9 +202,9 @@ public class GrabbableObject : MonoBehaviour, INodeObject
 
     public virtual void EnableTooltip(bool enable)
     {
-        //if (tooltip != null)
-        //    tooltip.gameObject.SetActive(enable);
-        //else
+        if (tooltip != null)
+            tooltip.gameObject.SetActive(enable);
+        else
             Debug.LogWarning("no tooltip in draggable " + name);
     }
 
