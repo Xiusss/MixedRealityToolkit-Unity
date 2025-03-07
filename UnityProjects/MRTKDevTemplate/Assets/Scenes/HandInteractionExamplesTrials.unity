@@ -11458,6 +11458,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 114025810608913470, guid: 8977c77580b4f4d4dbe3353348171de2, type: 3}
+      propertyPath: attachPointType
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 114570207066485496, guid: 8977c77580b4f4d4dbe3353348171de2, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -11465,6 +11469,10 @@ PrefabInstance:
     - target: {fileID: 120256979407580908, guid: 8977c77580b4f4d4dbe3353348171de2, type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 120256979407580908, guid: 8977c77580b4f4d4dbe3353348171de2, type: 3}
+      propertyPath: m_Parameters.numCapVertices
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 120256979407580908, guid: 8977c77580b4f4d4dbe3353348171de2, type: 3}
       propertyPath: m_Positions.Array.data[0].x
@@ -11484,7 +11492,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 120256979407580908, guid: 8977c77580b4f4d4dbe3353348171de2, type: 3}
       propertyPath: m_Positions.Array.data[1].y
-      value: 1.3832422
+      value: 1.4150001
       objectReference: {fileID: 0}
     - target: {fileID: 120256979407580908, guid: 8977c77580b4f4d4dbe3353348171de2, type: 3}
       propertyPath: m_Positions.Array.data[1].z
@@ -11503,6 +11511,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1241915114}
     - target: {fileID: 2460559112257831418, guid: 8977c77580b4f4d4dbe3353348171de2, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2460559112257831418, guid: 8977c77580b4f4d4dbe3353348171de2, type: 3}
       propertyPath: pivotMode
       value: 1
       objectReference: {fileID: 0}
@@ -11512,10 +11524,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2460559112257831418, guid: 8977c77580b4f4d4dbe3353348171de2, type: 3}
       propertyPath: connectorFollowType
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3198545740366722830, guid: 8977c77580b4f4d4dbe3353348171de2, type: 3}
       propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3198545740366722830, guid: 8977c77580b4f4d4dbe3353348171de2, type: 3}
+      propertyPath: roundedCaps
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3198545740366722830, guid: 8977c77580b4f4d4dbe3353348171de2, type: 3}
@@ -39236,7 +39252,7 @@ SceneRoots:
   - {fileID: 712946846}
   - {fileID: 1871034058}
   - {fileID: 9049288}
-  - {fileID: 1241915120}
   - {fileID: 268186151}
   - {fileID: 880971507}
   - {fileID: 1804043929}
+  - {fileID: 1241915120}
