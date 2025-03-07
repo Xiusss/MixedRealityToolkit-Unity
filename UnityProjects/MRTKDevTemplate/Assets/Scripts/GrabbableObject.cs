@@ -1,31 +1,21 @@
-/* File GrabbableObject C# implementation of class GrabbableObject */
-
-
-
-// global declaration start
-
 using System.Collections.Generic;
 using System;
 using System.Collections;
 using MixedReality.Toolkit;
 using UnityEngine;
-using MixedReality.Toolkit.SpatialManipulation;
 using UnityEngine.Assertions;
 using UnityEngine.XR.Interaction.Toolkit;
-using UnityEngine.XR.Interaction.Toolkit.Interactables;
-using UnityEngine.Animations;
-
-
-// global declaration end
+using MixedReality.Toolkit.SpatialManipulation;
+using MixedReality.Toolkit.UX;
 
 public class GrabbableObject : MonoBehaviour, INodeObject
 {
+    [SerializeField] private bool twoHandedScaling=false;
+
     protected readonly float TRANSFORMATIONS_LERP_TIME = 0.001f;
 
     public event EventHandler OnGrabbed;
     public event EventHandler OnDropped;
-
-    [SerializeField] private bool twoHandedScaling=false;
 
     internal bool isGrabbed =  false;
 
@@ -34,18 +24,34 @@ public class GrabbableObject : MonoBehaviour, INodeObject
 
     protected ObjectManipulator objectManipulator;
     protected ConstraintManager constraintManager;
-    protected XRGrabInteractable xrGrabInteractable;
+    //protected XRGrabInteractable xrGrabInteractable;
     protected MinMaxScaleConstraint minMaxScaleConstraint;
+    protected UGUIInputAdapterDraggable uGUIInputAdapterDraggable;
     protected Rigidbody rigidbody;
 
     protected Dictionary<ClipId, AudioClip> clips = new Dictionary<ClipId, AudioClip>();
+    //TODO [Tooltip]
     protected ToolTip tooltip;
     protected bool isReactive = false;
 
     public bool FarInteraction
     {
         get => farInteraction;
-        set => farInteraction = value;
+        set
+        {
+            if (objectManipulator == null)
+            {
+                Debug.LogError($"Setting FarInteraction property to {value} on grabbable: {gameObject.name} but no objectManipulator attached.");
+                return;
+            }
+
+            farInteraction = value;
+            if (farInteraction)
+                objectManipulator.AllowedInteractionTypes |= InteractionFlags.Ray;
+            else
+                objectManipulator.AllowedInteractionTypes &= ~InteractionFlags.Ray;
+
+        }
     }
 
     public bool PhysicsEnabled
@@ -60,7 +66,6 @@ public class GrabbableObject : MonoBehaviour, INodeObject
                 if(rigidbody == null)
                     rigidbody = gameObject.AddComponent<Rigidbody>();
             }
-
             rigidbody.isKinematic = !physicsEnabled;
         }
     }
@@ -71,8 +76,11 @@ public class GrabbableObject : MonoBehaviour, INodeObject
         objectManipulator = gameObject.AddComponent<ObjectManipulator>();
         Assert.IsNotNull(objectManipulator);
 
-        xrGrabInteractable = gameObject.AddComponent<XRGrabInteractable>();
-        Assert.IsNotNull(xrGrabInteractable);
+        uGUIInputAdapterDraggable = gameObject.AddComponent<UGUIInputAdapterDraggable>();
+        Assert.IsNotNull(uGUIInputAdapterDraggable);
+
+        //xrGrabInteractable = gameObject.AddComponent<XRGrabInteractable>();
+        //Assert.IsNotNull(xrGrabInteractable);
 
         minMaxScaleConstraint = gameObject.AddComponent<MinMaxScaleConstraint>();
         Assert.IsNotNull(minMaxScaleConstraint);
@@ -80,8 +88,10 @@ public class GrabbableObject : MonoBehaviour, INodeObject
         constraintManager = GetComponent<ConstraintManager>();
         Assert.IsNotNull(constraintManager);
 
-       TwoHandedScaling(twoHandedScaling);
-        UpdateFarInteraction(farInteraction);
+
+        objectManipulator.AllowedManipulations &= ~TransformFlags.Scale; // use &= ~ to remove undesired action
+        FarInteraction = farInteraction;
+
         objectManipulator.selectEntered.AddListener(OnManipulationStart);
         objectManipulator.selectExited.AddListener(OnManipulationEnd);
 
@@ -94,31 +104,7 @@ public class GrabbableObject : MonoBehaviour, INodeObject
         SetLerpedTransformations(false);
 
     }
-    private void TwoHandedScaling(bool twoHandedScaling)
-    {
 
-        ScaleConstraint scaleConstraint=null;
-
-        scaleConstraint = GetComponent<ScaleConstraint>();
-        if (scaleConstraint == null)
-        {
-            scaleConstraint = gameObject.AddComponent<ScaleConstraint>();
-        }
-
-        scaleConstraint.locked = twoHandedScaling;
-    }
-
-     public void UpdateFarInteraction(bool enable)
-     {
-            if (enable)
-            {
-                xrGrabInteractable.interactionLayers = InteractionLayerMask.NameToLayer("FarInteractable");
-            }
-            else
-            {
-                xrGrabInteractable.interactionLayers = 0;
-            }
-     }
     protected virtual void Start()
     {
         IsReactive = true;
@@ -129,29 +115,30 @@ public class GrabbableObject : MonoBehaviour, INodeObject
         OnGrabbed?.Invoke(this, EventArgs.Empty);
         isGrabbed = true;
         EnableTooltip(false);
+
     }
 
     protected virtual void HandleOnDropped()
     {
         OnDropped?.Invoke(this, EventArgs.Empty);
         isGrabbed = false;
-        EnableTooltip(true);
-
     }
 
     protected void OnManipulationStart(SelectEnterEventArgs eventData)
     {
+        EnableTooltip(false);
+
         if (!IsReactive || isGrabbed)
             return;
-
         HandleOnGrabbed();
     }
 
     protected void OnManipulationEnd(SelectExitEventArgs eventData)
     {
+        EnableTooltip(true);
+
         if (!IsReactive || !isGrabbed)
             return;
-
         HandleOnDropped();
     }
 
@@ -178,9 +165,7 @@ public class GrabbableObject : MonoBehaviour, INodeObject
     public void SetTooltip(ObjectTextId objectTextId)
     {
         if(tooltip == null) return;
-
-        tooltip.ToolTipText =
-            LocaleManager.Instance.GetObjectText(GetType().ToString(), objectTextId);
+        tooltip.ToolTipText = LocaleManager.Instance.GetObjectText(GetType().ToString(), objectTextId);
     }
 
     public bool IsReactive
@@ -195,13 +180,15 @@ public class GrabbableObject : MonoBehaviour, INodeObject
 
             objectManipulator.enabled = isReactive;
             constraintManager.enabled = isReactive;
-            xrGrabInteractable.enabled = isReactive;
+
+            EnableTooltip(isReactive);
             minMaxScaleConstraint.enabled = isReactive;
         }
     }
 
     public virtual void EnableTooltip(bool enable)
     {
+
         if (tooltip != null)
             tooltip.gameObject.SetActive(enable);
         else

@@ -7,8 +7,10 @@ using UnityEngine;
 
 namespace MixedReality.Toolkit.SpatialManipulation
 {
+    using UnityEditor.Playables;
+
     /// <summary>
-    /// Manages constraints for a given object and ensures that scale, rotation, and translation 
+    /// Manages constraints for a given object and ensures that scale, rotation, and translation
     /// constraints are executed separately.
     /// </summary>
     /// <remarks>
@@ -49,12 +51,12 @@ namespace MixedReality.Toolkit.SpatialManipulation
         private List<TransformConstraint> constraints = new List<TransformConstraint>();
         private MixedRealityTransform initialWorldPose;
 
-        /// <summary>	
+        /// <summary>
         /// Adds a constraint to the manual selection list.
         /// Note that only unique components will be added to the list.
-        /// </summary>	
+        /// </summary>
         /// <param name="constraint">Constraint to add to the managers manual constraint list.</param>
-        /// <returns>Returns true if insertion was successful. If the component was already in the list the insertion will fail.</returns>	
+        /// <returns>Returns true if insertion was successful. If the component was already in the list the insertion will fail.</returns>
         public bool AddConstraintToManualSelection(TransformConstraint constraint)
         {
             var existingConstraint = selectedConstraints.Find(t => t == constraint);
